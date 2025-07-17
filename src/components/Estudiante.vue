@@ -1,5 +1,4 @@
 <template>
-
     <div>
         <button v-on:click="guardar()"> Guardar  </button>
         <button v-on:click="actualizar()">Actualizar</button>
@@ -7,7 +6,6 @@
         <button v-on:click="borrar()">Borrar</button>
         <!-- <button v-on:click="guardar()">Consutlar</button> -->
     </div>
-
 </template>
 
 <script>
