@@ -1,30 +1,31 @@
 <template>
-  <div class="login-container">
-    <div class="login-caja">
-        <h2>Iniciar Sesion</h2>
-        <input v-model="username" type="text" placeholder="Usuario">
-        <input v-model="password" type="text" placeholder="Contraseña">
-        <button @click="login()">Ingresar</button>
+    <div class="login-container">
+        <div class="login-caja">
+            <h2>Iniciar Sesion</h2>
+            <input v-model="username" type="text" placeholder="Usuario">
+            <input v-model="password" type="text" placeholder="Contraseña">
+            <button @click="login()">Ingresar</button>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 export default {
-    data(){
-        return{
+    data() {
+        return {
             username: "",
             password: "",
         };
     },
-    methods:{
-        login(){
-            if (this.username === 'admin' && this.password === '123') {
-                localStorage.setItem("usuario","admin");
-                localStorage.setItem("auth","true"); //bandera que indique al sistema que se autentico
+    methods: {
+        login() {
+            if (
+                (this.username === "admin" || this.username === "estudiante")
+             && this.password === '123') {
+                localStorage.setItem("usuario", this.username);
+                localStorage.setItem("auth", "true"); //bandera que indique al sistema que se autentico
                 // redireccionar a la pagina de bienvenida
-                this.$router.push('/home')
-
+                this.$router.push("/home")
             }
         }
 
@@ -34,7 +35,6 @@ export default {
 </script>
 
 <style>
-
 .login-container {
     display: flex;
     justify-content: center;
@@ -53,14 +53,14 @@ export default {
 
 }
 
-input{
-   width: 100%; 
-   padding: 10px;
-   margin-bottom: 15px;
-   border: 1px solid #ccc;
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
 }
 
-button{
+button {
     width: 300px;
     padding: 10px;
     background: #007bff;
@@ -68,5 +68,4 @@ button{
     border-radius: 6px;
     color: white;
 }
-
 </style>
