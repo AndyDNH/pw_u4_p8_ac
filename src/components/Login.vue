@@ -10,6 +10,7 @@
 </template>
 
 <script>
+// import { obtenerTokenFachada } from "@/clients/TokenClient";
 export default {
     data() {
         return {
@@ -18,12 +19,13 @@ export default {
         };
     },
     methods: {
-        login() {
+        async login() {
             if (
                 (this.username === "admin" || this.username === "estudiante")
              && this.password === '123') {
                 localStorage.setItem("usuario", this.username);
                 localStorage.setItem("auth", "true"); //bandera que indique al sistema que se autentico
+                // await obtenerTokenFachada()
                 // redireccionar a la pagina de bienvenida
                 this.$router.push("/home")
             }

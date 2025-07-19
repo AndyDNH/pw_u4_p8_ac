@@ -1,72 +1,198 @@
 <template>
-    <div>
-        <button v-on:click="guardar()"> Guardar  </button>
-        <button v-on:click="actualizar()">Actualizar</button>
-        <button v-on:click="actualizarParcial()">Actualizar Parcial</button>
-        <button v-on:click="borrar()">Borrar</button>
-        <!-- <button v-on:click="guardar()">Consutlar</button> -->
+    <div class="container-estudiante">
+        <div class="form-container">
+            <form @submit.prevent="guardar">
+                <h2>Registro de Estudiante</h2>
+                <div class="form-group">
+                    <label for="id">Id</label>
+                    <input id="id" v-model="id" type="text" placeholder="No ingresar para crear un estudiante" />
+                </div>
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input id="nombre" v-model="estudiante.nombre" type="text" required />
+                </div>
+                <div class="form-group">
+                    <label for="apellido">Apellido</label>
+                    <input id="apellido" v-model="estudiante.apellido" type="text" required />
+                </div>
+                <div class="form-group">
+                    <label for="fechaNacimiento">Fecha Nacimiento</label>
+                    <input id="fechaNacimiento" v-model="estudiante.fechaNacimiento" type="date" required />
+                </div>
+                <div class="form-group">
+                    <label for="genero">Género</label>
+                    <select id="genero" v-model="estudiante.genero" required>
+                        <option value="" disabled>Seleccione</option>
+                        <option value="M">Masculino</option>
+                        <option value="F">Femenino</option>
+                    </select>
+                </div>
+                <button type="submit">Guardar</button>
+            </form>
+            <div class="acciones">
+                <button @click="consultar">Consultar</button>
+                <button @click="actualizar">Actualizar</button>
+                <button @click="actualizarParcial">Actualizar Parcial</button>
+                <button @click="borrar">Borrar</button>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-import { guardarFachada,actualizarFachada, actualizarParcialFachada,borrarFachada } from "@/clients/EstudianteClient";
+import { consultarEstudiantesFachada,guardarFachada, actualizarFachada, actualizarParcialFachada, borrarFachada } from "@/clients/EstudianteClient";
 export default {
+    props: {
+        listaEstudiantes: {
+            type: Array,
+            required: true
+        }
+    },
+    data() {
+        return {
+            estudiante: {
+                nombre: '',
+                apellido: '',
+                fechaNacimiento: '',
+                genero: '',
+            },
+            id: ''
+        };
+    },
 
-    methods:{
-        async guardar(){
+    methods: {
+        async guardar() {
             let formatoHora = 'T00:00:00';
             const estudianteToBody = {
-                nombre:'Andres',
-                apellido:'Guaman',
-                fechaNacimiento:'2000-10-04' + formatoHora,
-                genero:'M'
+                ...this.estudiante,
+                fechaNacimiento: this.estudiante.fechaNacimiento + formatoHora
             };
             await guardarFachada(estudianteToBody);
             console.log('guardado');
-            
-
-        }, 
-        async actualizar(){
+        },
+        async consultar() {
+            if (!this.id) {
+                alert("Ingrese un ID para consultar");
+                return;
+            }
+            const data = await consultarEstudiantesFachada(this.id);
+            if (data) {
+                // Ajusta según la estructura que devuelve tu API
+                this.estudiante.nombre = data.nombre || '';
+                this.estudiante.apellido = data.apellido || '';
+                // Quita la hora si viene en fechaNacimiento
+                this.estudiante.fechaNacimiento = data.fechaNacimiento ? data.fechaNacimiento.split('T')[0] : '';
+                this.estudiante.genero = data.genero || '';
+            } else {
+                alert("No se encontró el estudiante");
+            }
+        },
+        async actualizar() {
             let formatoHora = 'T00:00:00';
-            let id = 10
             const estudianteToBody = {
-                nombre:'Damian',
-                apellido:'Guaman',
-                fechaNacimiento:'2010-10-04' + formatoHora,
-                genero:'M'
+                ...this.estudiante,
+                fechaNacimiento: this.estudiante.fechaNacimiento + formatoHora
             };
-            await actualizarFachada(estudianteToBody,id);
+            await actualizarFachada(estudianteToBody, this.id);
             console.log('actualizar');
-            
-            
         },
-        async actualizarParcial(){
-            let formatoHora = 'T00:00:00';
-            let id = 10
+        async actualizarParcial() {
             const estudianteToBody = {
-                apellido:'Guzman',
+                apellido: this.estudiante.apellido
             };
-            await actualizarParcialFachada(estudianteToBody,id);
+            await actualizarParcialFachada(estudianteToBody, this.id);
             console.log('actualizar parcial');
-            
         },
-
-        async borrar(){
-            let id = 4
-            await borrarFachada(id);
+        async borrar() {
+            await borrarFachada(this.id);
             console.log('borrar');
-            
-        },
-
-
-        consultar(){
-
         }
-
     }
 }
 </script>
 
 <style>
+.form-container {
+    max-width: 400px;
+    margin: 40px auto;
+    background: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    padding: 32px 24px;
+}
 
+h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #007bff;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+    font-weight: 500;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bdbdbd;
+    border-radius: 6px;
+    font-size: 16px;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+button[type="submit"]:hover {
+    background: #0056b3;
+}
+
+.acciones {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 18px;
+}
+
+.acciones button {
+    flex: 1;
+    margin: 0 4px;
+    padding: 10px;
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.acciones button:hover {
+    background: #495057;
+}
 </style>
