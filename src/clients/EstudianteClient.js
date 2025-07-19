@@ -17,7 +17,14 @@ const HEADER = {
 };
 
 const guardar = async(body) =>{
-    axios.post('http://localhost:8081/api/matricula/v1/estudiantes/', body).then(r => r.data);
+    let token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwOi8vdWNlLmVkdS5lYyIsInVwbiI6Im1pY29ycmVvQHVjZS5lZHUuZWMiLCJncm91cHMiOlsiZXN0dWRpYW50ZXMiXSwiaWF0IjoxNzUyODg0Mzg5LCJleHAiOjE3NTI4ODQ0MTksImp0aSI6IjgzNTM0OWY0LTFjNTMtNDRhYS1iNDExLTY2Y2NmNWVkMzg2NCJ9.C2dLxxHNbm8awY3rUCH2rKi-KuSiq0fuw7pWCA-qCTpCWU3avGwqdrz7lzZsLTw1MlmTIxFNAwU6t40klpMk4wEn477sKBdrn5c8uhE2HDcJc_ch4PJ2w9wEIUHTBYwCewmn0mb3jjGVea0y3_5OqqNhgnNgbvz90GQYLo1FX4z-7gbbMbowTSNUdcQhFyOZ6t8Tcmqo-yTwRB_YhK2ld-h2phuBm6tWAhplP5c7BhqRfzePwTCrC9WRJZagDuBCPwdUfxU5GEZjjafGzH-cEJ5BxN1A31iUJLYKc64RhMpTWq_eD457OpnoonUIJNkPU2aj1bh1_xGUaDuxSjTp-g'
+    axios.post('http://localhost:8081/api/matricula/v1/estudiantes/', body , 
+        {
+            headers:{
+                Authorization: `Bearer ${token}`
+            }
+        }
+    ).then(r => r.data);
 
 }
 
