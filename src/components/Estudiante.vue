@@ -9,20 +9,20 @@
                 </div>
                 <div class="form-group">
                     <label for="nombre">Nombre</label>
-                    <input id="nombre" v-model="estudiante.nombre" type="text" required />
+                    <input id="nombre" v-model="localEstudiante.nombre" type="text" placeholder="Ingresa tu Nombre"  />
                 </div>
                 <div class="form-group">
                     <label for="apellido">Apellido</label>
-                    <input id="apellido" v-model="estudiante.apellido" type="text" required />
+                    <input id="apellido" v-model="localEstudiante.apellido" type="text" placeholder="Ingresa tu Apellido"  />
                 </div>
                 <div class="form-group">
                     <label for="fechaNacimiento">Fecha Nacimiento</label>
-                    <input id="fechaNacimiento" v-model="estudiante.fechaNacimiento" type="date" required />
+                    <input id="fechaNacimiento" v-model="localEstudiante.fechaNacimiento" type="date" />
                 </div>
                 <div class="form-group">
                     <label for="genero">Género</label>
-                    <select id="genero" v-model="estudiante.genero" required>
-                        <option value="" disabled>Seleccione</option>
+                    <select id="genero" v-model="localEstudiante.genero" required>
+                        <option value="" >Seleccione</option>
                         <option value="M">Masculino</option>
                         <option value="F">Femenino</option>
                     </select>
@@ -30,7 +30,7 @@
                 <button type="submit">Guardar</button>
             </form>
             <div class="acciones">
-                <button @click="consultar">Consultar</button>
+                <button @click.prevent="$emit('consultar-estudiante', id)">Consultar</button>
                 <button @click="actualizar">Actualizar</button>
                 <button @click="actualizarParcial">Actualizar Parcial</button>
                 <button @click="borrar">Borrar</button>
@@ -40,66 +40,75 @@
 </template>
 
 <script>
-import { consultarEstudiantesFachada,guardarFachada, actualizarFachada, actualizarParcialFachada, borrarFachada } from "@/clients/EstudianteClient";
+import { consultarEstudiantesFachada, guardarFachada, actualizarFachada, actualizarParcialFachada, borrarFachada } from "@/clients/EstudianteClient";
+
 export default {
     props: {
         listaEstudiantes: {
             type: Array,
             required: true
+        },
+        estudiante: {
+            type: Object,
+            required: false,
+            default: () => ({
+                nombre: '',
+                apellido: '',
+                fechaNacimiento: '',
+                genero: ''
+            })
         }
     },
     data() {
         return {
-            estudiante: {
-                nombre: '',
-                apellido: '',
-                fechaNacimiento: '',
-                genero: '',
+            localEstudiante: {
+                nombre: null,
+                apellido: null,
+                fechaNacimiento: null,
+                genero: null,
             },
-            id: ''
+            id: '',
+            formatoHora: 'T00:00:00'
         };
     },
-
     methods: {
         async guardar() {
-            let formatoHora = 'T00:00:00';
             const estudianteToBody = {
-                ...this.estudiante,
-                fechaNacimiento: this.estudiante.fechaNacimiento + formatoHora
+                nombre: this.localEstudiante.nombre,
+                apellido: this.localEstudiante.apellido,
+                fechaNacimiento: this.localEstudiante.fechaNacimiento + this.formatoHora,
+                genero: this.localEstudiante.genero
             };
             await guardarFachada(estudianteToBody);
             console.log('guardado');
         },
         async consultar() {
-            if (!this.id) {
-                alert("Ingrese un ID para consultar");
-                return;
-            }
-            const data = await consultarEstudiantesFachada(this.id);
-            if (data) {
-                // Ajusta según la estructura que devuelve tu API
-                this.estudiante.nombre = data.nombre || '';
-                this.estudiante.apellido = data.apellido || '';
-                // Quita la hora si viene en fechaNacimiento
-                this.estudiante.fechaNacimiento = data.fechaNacimiento ? data.fechaNacimiento.split('T')[0] : '';
-                this.estudiante.genero = data.genero || '';
-            } else {
-                alert("No se encontró el estudiante");
-            }
         },
         async actualizar() {
-            let formatoHora = 'T00:00:00';
             const estudianteToBody = {
-                ...this.estudiante,
-                fechaNacimiento: this.estudiante.fechaNacimiento + formatoHora
+                nombre: this.localEstudiante.nombre,
+                apellido: this.localEstudiante.apellido,
+                fechaNacimiento: this.localEstudiante.fechaNacimiento + this.$propsformatoHora,
+                genero: this.localEstudiante.genero
             };
             await actualizarFachada(estudianteToBody, this.id);
             console.log('actualizar');
         },
         async actualizarParcial() {
-            const estudianteToBody = {
-                apellido: this.estudiante.apellido
-            };
+
+            const estudianteToBody = {};
+            for (const indice in this.localEstudiante) {
+                const campo = this.localEstudiante[indice];
+                if (campo === '') {
+                    estudianteToBody[indice] = null;
+                } else {
+                    estudianteToBody[indice] = campo;
+                }
+            }
+
+            if (estudianteToBody.fechaNacimiento !== null) {
+                estudianteToBody.fechaNacimiento += this.formatoHora;
+            }
             await actualizarParcialFachada(estudianteToBody, this.id);
             console.log('actualizar parcial');
         },
@@ -107,7 +116,14 @@ export default {
             await borrarFachada(this.id);
             console.log('borrar');
         }
-    }
+    },
+    watch: {
+        estudiante(nuevoValor, valorAnterior) {
+            if (nuevoValor) {
+                this.localEstudiante = nuevoValor;
+            }
+        }
+    },
 }
 </script>
 

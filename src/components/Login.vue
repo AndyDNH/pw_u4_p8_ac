@@ -10,7 +10,7 @@
 </template>
 
 <script>
-// import { obtenerTokenFachada } from "@/clients/TokenClient";
+import { obtenerTokenFachada } from "@/clients/TokenClient";
 export default {
     data() {
         return {
@@ -25,7 +25,7 @@ export default {
              && this.password === '123') {
                 localStorage.setItem("usuario", this.username);
                 localStorage.setItem("auth", "true"); //bandera que indique al sistema que se autentico
-                // await obtenerTokenFachada()
+                await obtenerTokenFachada()
                 // redireccionar a la pagina de bienvenida
                 this.$router.push("/home")
             }
